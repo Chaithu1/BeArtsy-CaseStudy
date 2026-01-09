@@ -1,0 +1,118 @@
+@baseUrl = http://localhost:8080
+
+### ------------------------------------------------------------
+### SETUP: Create a user (used by all tests below)
+### ------------------------------------------------------------
+
+### 1) Create user (expect 201)
+# @name createUser
+POST {{baseUrl}}/users
+Accept: application/json
+Content-Type: application/json
+
+{"U_Name":"Test User","U_Auth_Sub":"auth0|test-user","U_Profile":"https://example.com/profile"}
+
+
+
+### ------------------------------------------------------------
+### HAPPY PATH: Use the created user
+### ------------------------------------------------------------
+
+### 2) Get user (expect 200)
+GET {{baseUrl}}/users/{{createUser.response.body.U_ID}}
+Accept: application/json
+
+
+### 3) Update user (PUT) (expect 200)
+PUT {{baseUrl}}/users/{{createUser.response.body.U_ID}}
+Accept: application/json
+Content-Type: application/json
+
+{"U_Name": "Updated Name","U_Profile": "https://example.com/updated"}
+
+
+### 4) Get user again (expect 200 + updated fields)
+GET {{baseUrl}}/users/{{createUser.response.body.U_ID}}
+Accept: application/json
+
+
+### ------------------------------------------------------------
+### CONTRACT / NEGATIVE TESTS (while user exists)
+### ------------------------------------------------------------
+
+### 5) 406 Not Acceptable (expect 406)
+GET {{baseUrl}}/users/{{createUser.response.body.U_ID}}
+Accept: text/html
+
+
+### 6) 400 Body not allowed on GET (expect 400)
+GET {{baseUrl}}/users/{{createUser.response.body.U_ID}}
+Accept: application/json
+
+hello
+
+
+### 7) 400 Body not allowed on DELETE (expect 400)
+# We do this BEFORE the real delete so cleanup still works.
+DELETE {{baseUrl}}/users/{{createUser.response.body.U_ID}}
+Accept: application/json
+
+nope
+
+
+### 8) 415 Unsupported Media Type on POST (expect 415)
+POST {{baseUrl}}/users
+Accept: application/json
+Content-Type: text/plain
+
+hello
+
+
+### 9) 400 Invalid JSON on POST (expect 400)
+POST {{baseUrl}}/users
+Accept: application/json
+Content-Type: application/json
+
+INVALID_json
+
+
+### 10) 400 Missing JSON body on POST (expect 400)
+POST {{baseUrl}}/users
+Accept: application/json
+Content-Type: application/json
+
+
+### 11) 415 Unsupported Media Type on PUT (expect 415)
+PUT {{baseUrl}}/users/{{createUser.response.body.U_ID}}
+Accept: application/json
+Content-Type: text/plain
+
+hello
+
+
+### 12) 400 Invalid JSON on PUT (expect 400)
+PUT {{baseUrl}}/users/{{createUser.response.body.U_ID}}
+Accept: application/json
+Content-Type: application/json
+
+bad json
+
+
+### 13) 400 Missing JSON body on PUT (expect 400)
+PUT {{baseUrl}}/users/{{createUser.response.body.U_ID}}
+Accept: application/json
+Content-Type: application/json
+
+
+### ------------------------------------------------------------
+### CLEANUP: Delete the created user
+### ------------------------------------------------------------
+
+### 14) Delete user (expect 204)
+DELETE {{baseUrl}}/users/{{createUser.response.body.U_ID}}
+Accept: application/json
+
+
+### 15) Verify delete (expect 404)
+GET {{baseUrl}}/users/{{createUser.response.body.U_ID}}
+Accept: application/json
