@@ -2,7 +2,7 @@
  BeArtsy sends users a daily, random time notification, inviting them to the website for a spontaneous pixel art session. 
 This repository implements the **BeArtsy backend REST API** using **Flask** and the **Google Cloud Datastore Emulator**, following the provided specification.
 
-Note: Due to time constraints, Auth as well as Art-Gallery relationships were not implemented :(
+Note: Due to time constraints, Auth was not implemented :(
 
 ## Tech Stack
 

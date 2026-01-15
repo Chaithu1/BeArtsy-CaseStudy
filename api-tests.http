@@ -61,7 +61,7 @@ DELETE {{baseUrl}}/users/{{createUser1.response.body.U_ID}}/users/{{createUser2.
 Accept: {{json}}
 
 ### ------------------------------------------------------------
-### ARTS: Create + list + get + update + delete
+### ARTS: Create + list + get + update
 ### ------------------------------------------------------------
 # @name createArt
 POST {{baseUrl}}/arts
@@ -94,8 +94,6 @@ Content-Type: application/json
   "A_Comments": []
 }
 
-###
-
 ### PATCH art (partial)
 PATCH {{baseUrl}}/arts/{{createArt.response.body.A_ID}}
 Accept: application/json
@@ -109,15 +107,8 @@ Content-Type: application/json
 GET {{baseUrl}}/arts/{{createArt.response.body.A_ID}}
 Accept: {{json}}
 
-DELETE {{baseUrl}}/arts/{{createArt.response.body.A_ID}}
-Accept: {{json}}
-###
-# Verify deleted
-GET {{baseUrl}}/arts/{{createArt.response.body.A_ID}}
-Accept: {{json}}
-
 ### ------------------------------------------------------------
-### GALLERIES: Create + list + get + update + delete
+### GALLERIES: Create + list + get + update
 ### ------------------------------------------------------------
 # @name createGallery
 POST {{baseUrl}}/galleries
@@ -160,14 +151,6 @@ Content-Type: application/json
 ### Verify update
 GET {{baseUrl}}/galleries/{{createGallery.response.body.G_ID}}
 Accept: {{json}}
-###
-
-DELETE {{baseUrl}}/galleries/{{createGallery.response.body.G_ID}}
-Accept: {{json}}
-###
-# Verify deleted
-GET {{baseUrl}}/galleries/{{createGallery.response.body.G_ID}}
-Accept: {{json}}
 
 ### ------------------------------------------------------------
 ### ARTS + GALLERIES RELATIONSHIPS: Add + list + delete
@@ -196,12 +179,26 @@ DELETE {{baseUrl}}/galleries/{{createGallery.response.body.G_ID}}/arts/{{createA
 Accept: application/json
 
 ### ------------------------------------------------------------
-### CLEANUP: Delete users
+### CLEANUP: Delete users + art + gallery
 ### ------------------------------------------------------------
 DELETE {{baseUrl}}/users/{{createUser1.response.body.U_ID}}
 Accept: {{json}}
 ###
 DELETE {{baseUrl}}/users/{{createUser2.response.body.U_ID}}
+Accept: {{json}}###
+###
+DELETE {{baseUrl}}/galleries/{{createGallery.response.body.G_ID}}
+Accept: {{json}}
+###
+# Verify deleted
+GET {{baseUrl}}/galleries/{{createGallery.response.body.G_ID}}
+Accept: {{json}}
+###
+DELETE {{baseUrl}}/arts/{{createArt.response.body.A_ID}}
+Accept: {{json}}
+###
+# Verify deleted
+GET {{baseUrl}}/arts/{{createArt.response.body.A_ID}}
 Accept: {{json}}
 
 ### ------------------------------------------------------------
@@ -225,3 +222,22 @@ GET {{baseUrl}}/users
 Accept: {{json}}
 
 { "bad": true }
+
+### 400: PATCH art with empty body (must include at least one updatable field)
+PATCH {{baseUrl}}/arts/{{createArt.response.body.A_ID}}
+Accept: {{json}}
+Content-Type: {{json}}
+
+{}
+
+### 400: PUT gallery missing required field (G_Comments)
+PUT {{baseUrl}}/galleries/{{createGallery.response.body.G_ID}}
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+  "G_Name": "Invalid Gallery",
+  "G_Is_Public": true
+}
+
+###
