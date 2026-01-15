@@ -17,3 +17,11 @@ def list_galleries(ds: datastore.Client, *, limit=None, offset=0):
     if limit is None:
         return list(query.fetch(offset=offset))
     return list(query.fetch(limit=limit, offset=offset))
+
+def delete_gallery(ds: datastore.Client, gallery_id: int) -> bool:
+    key = ds.key(GALLERY_KIND, gallery_id)
+    if ds.get(key) is None:
+        return False
+    ds.delete(key)
+    return True
+

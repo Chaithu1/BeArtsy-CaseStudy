@@ -62,7 +62,7 @@ def reject_body(fn: Callable):
     def wrapper(*args, **kwargs):
         # request.get_data reads raw body; if client sends whitespace/newline,
         # spec usually still considers that “content”.
-        raw = request.get_data
+        raw = request.get_data()
         if raw and len(raw) > 0:
             return error_response(400, "Bad Request: request body not allowed for this endpoint.")
         return fn(*args, **kwargs)
@@ -75,7 +75,7 @@ def reject_body(fn: Callable):
 
 # Returns parsed JSON dict (or list/primitive) with strict behavior. 400 for invalid/missing
 def parse_json_strict(required: bool):
-    raw = request.get_data
+    raw = request.get_data()
     if not raw or len(raw) == 0:
         if required:
             raise ApiContractViolation(400, "Bad Request: JSON body required.")

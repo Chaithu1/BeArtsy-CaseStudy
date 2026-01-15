@@ -10,7 +10,7 @@ from contracts import (
     error_response,
 )
 
-from galleries.repo import create_gallery_entity, get_gallery as repo_get_gallery, list_galleries
+from galleries.repo import create_gallery_entity, get_gallery as repo_get_gallery, list_galleries, delete_gallery as repo_delete_gallery
 from galleries.serializers import gallery_to_response, gallery_mini_response
 from users.repo import get_user as repo_get_user
 from utils.urls import user_self_url
@@ -75,5 +75,13 @@ def create_galleries_blueprint(ds: datastore.Client) -> Blueprint:
         if gallery is None:
             return error_response(404, "Not Found")
         return jsonify(gallery_to_response(gallery)), 200
+    
+    @bp.delete("/galleries/<int:gallery_id>")
+    @require_accept_json
+    @reject_body
+    def delete_gallery(gallery_id: int):
+        if not repo_delete_gallery(ds, gallery_id):
+            return error_response(404, "Not Found")
+        return "", 204
 
     return bp

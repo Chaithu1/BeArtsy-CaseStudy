@@ -10,7 +10,7 @@ from contracts import (
     error_response,
 )
 
-from arts.repo import create_art_entity, get_art as repo_get_art, list_arts
+from arts.repo import create_art_entity, get_art as repo_get_art, list_arts, delete_art as repo_delete_art
 from arts.serializers import art_to_response, art_mini_response
 from users.repo import get_user as repo_get_user
 from utils.urls import user_self_url 
@@ -76,5 +76,14 @@ def create_arts_blueprint(ds: datastore.Client) -> Blueprint:
         if art is None:
             return error_response(404, "Not Found")
         return jsonify(art_to_response(art)), 200
+    
+    @bp.delete("/arts/<int:art_id>")
+    @require_accept_json
+    @reject_body
+    def delete_art(art_id: int):
+        if not repo_delete_art(ds, art_id):
+            return error_response(404, "Not Found")
+        return "", 204
+
 
     return bp
