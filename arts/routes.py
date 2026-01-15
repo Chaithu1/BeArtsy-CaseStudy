@@ -10,7 +10,7 @@ from contracts import (
     error_response,
 )
 
-from arts.repo import create_art_entity, get_art as repo_get_art, list_arts, delete_art as repo_delete_art
+from arts.repo import create_art_entity, get_art as repo_get_art, list_arts, delete_art as repo_delete_art, update_art as repo_update_art
 from arts.serializers import art_to_response, art_mini_response
 from users.repo import get_user as repo_get_user
 from utils.urls import user_self_url 
@@ -84,6 +84,63 @@ def create_arts_blueprint(ds: datastore.Client) -> Blueprint:
         if not repo_delete_art(ds, art_id):
             return error_response(404, "Not Found")
         return "", 204
+    
+    @bp.put("/arts/<int:art_id>")
+    @require_accept_json
+    @require_content_type_json
+    @require_json_body(required_fields=["A_Title", "A_Image", "A_Is_Public", "A_Comments"])
+    def put_art(art_id: int):
+        body = request.parsed_json
 
+        art = repo_get_art(ds, art_id)
+        if art is None:
+            return error_response(404, "Not Found")
+
+        # Disallow changing ownership / relationships via PUT
+        if "User" in body or "Galleries" in body or "A_ID" in body or "self" in body:
+            return error_response(400, "Bad Request")
+
+        updates = {
+            "A_Title": body["A_Title"],
+            "A_Image": body["A_Image"],
+            "A_Is_Public": body["A_Is_Public"],
+            "A_Comments": body["A_Comments"],
+        }
+
+        updated = repo_update_art(ds, art, updates)
+        return jsonify(art_to_response(updated)), 200
+    
+    @bp.patch("/arts/<int:art_id>")
+    @require_accept_json
+    @require_content_type_json
+    @require_json_body(at_least_one_of=["A_Title", "A_Image", "A_Is_Public", "A_Comments"])
+    def patch_art(art_id: int):
+        body = request.parsed_json
+
+        art = repo_get_art(ds, art_id)
+        if art is None:
+            return error_response(404, "Not Found")
+
+        # Disallow patching ownership / relationships
+        if "User" in body or "Galleries" in body or "A_ID" in body or "self" in body:
+            return error_response(400, "Bad Request")
+
+        allowed = ["A_Title", "A_Image", "A_Is_Public", "A_Comments"]
+        updates = {k: body[k] for k in allowed if k in body}
+
+        updated = repo_update_art(ds, art, updates)
+        return jsonify(art_to_response(updated)), 200
+
+
+    
+    @bp.get("/arts/<int:art_id>/galleries")
+    @require_accept_json
+    @reject_body
+    def list_art_galleries(art_id: int):
+        art = repo_get_art(ds, art_id)
+        if art is None:
+            return error_response(404, "Not Found")
+
+        return jsonify({"Galleries": art.get("Galleries", []) or []}), 200
 
     return bp

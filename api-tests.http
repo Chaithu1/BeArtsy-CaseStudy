@@ -61,7 +61,7 @@ DELETE {{baseUrl}}/users/{{createUser1.response.body.U_ID}}/users/{{createUser2.
 Accept: {{json}}
 
 ### ------------------------------------------------------------
-### ARTS: Create + list + get + delete
+### ARTS: Create + list + get + update + delete
 ### ------------------------------------------------------------
 # @name createArt
 POST {{baseUrl}}/arts
@@ -81,7 +81,34 @@ Accept: {{json}}
 ###
 GET {{baseUrl}}/arts/{{createArt.response.body.A_ID}}
 Accept: {{json}}
+
+### PUT art (replace)
+PUT {{baseUrl}}/arts/{{createArt.response.body.A_ID}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "A_Title": "Updated Title",
+  "A_Image": "Updated Image",
+  "A_Is_Public": false,
+  "A_Comments": []
+}
+
 ###
+
+### PATCH art (partial)
+PATCH {{baseUrl}}/arts/{{createArt.response.body.A_ID}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "A_Is_Public": true
+}
+
+### Verify updates
+GET {{baseUrl}}/arts/{{createArt.response.body.A_ID}}
+Accept: {{json}}
+
 DELETE {{baseUrl}}/arts/{{createArt.response.body.A_ID}}
 Accept: {{json}}
 ###
@@ -90,7 +117,7 @@ GET {{baseUrl}}/arts/{{createArt.response.body.A_ID}}
 Accept: {{json}}
 
 ### ------------------------------------------------------------
-### GALLERIES: Create + list + get + delete
+### GALLERIES: Create + list + get + update + delete
 ### ------------------------------------------------------------
 # @name createGallery
 POST {{baseUrl}}/galleries
@@ -109,13 +136,64 @@ Accept: {{json}}
 ###
 GET {{baseUrl}}/galleries/{{createGallery.response.body.G_ID}}
 Accept: {{json}}
+
+### PUT gallery (replace)
+PUT {{baseUrl}}/galleries/{{createGallery.response.body.G_ID}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "G_Name": "Updated Gallery",
+  "G_Is_Public": true,
+  "G_Comments": []
+}
+
+### PATCH gallery (partial)
+PATCH {{baseUrl}}/galleries/{{createGallery.response.body.G_ID}}
+Accept: application/json
+Content-Type: application/json
+
+{
+  "G_Name": "Renamed Gallery"
+}
+
+### Verify update
+GET {{baseUrl}}/galleries/{{createGallery.response.body.G_ID}}
+Accept: {{json}}
 ###
+
 DELETE {{baseUrl}}/galleries/{{createGallery.response.body.G_ID}}
 Accept: {{json}}
 ###
 # Verify deleted
 GET {{baseUrl}}/galleries/{{createGallery.response.body.G_ID}}
 Accept: {{json}}
+
+### ------------------------------------------------------------
+### ARTS + GALLERIES RELATIONSHIPS: Add + list + delete
+### ------------------------------------------------------------
+
+### Add art to gallery
+PATCH {{baseUrl}}/galleries/{{createGallery.response.body.G_ID}}/arts/{{createArt.response.body.A_ID}}
+Accept: application/json
+
+###
+
+### List arts in gallery
+GET {{baseUrl}}/galleries/{{createGallery.response.body.G_ID}}/arts
+Accept: application/json
+
+###
+
+### List galleries for art
+GET {{baseUrl}}/arts/{{createArt.response.body.A_ID}}/galleries
+Accept: application/json
+
+###
+
+### Remove art from gallery
+DELETE {{baseUrl}}/galleries/{{createGallery.response.body.G_ID}}/arts/{{createArt.response.body.A_ID}}
+Accept: application/json
 
 ### ------------------------------------------------------------
 ### CLEANUP: Delete users

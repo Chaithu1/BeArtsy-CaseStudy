@@ -25,3 +25,20 @@ def delete_art(ds: datastore.Client, art_id: int) -> bool:
     ds.delete(key)
     return True
 
+def update_art(ds: datastore.Client, art: datastore.Entity, updates: dict) -> datastore.Entity:
+    art.update(updates)
+    ds.put(art)
+    return art
+
+def add_gallery_to_art(ds: datastore.Client, art: datastore.Entity, gallery_mini: dict) -> None:
+    galleries = art.get("Galleries", []) or []
+    galleries.append(gallery_mini)
+    art["Galleries"] = galleries
+    ds.put(art)
+
+def remove_gallery_from_art(ds: datastore.Client, art: datastore.Entity, gallery_id: int) -> None:
+    galleries = art.get("Galleries", []) or []
+    art["Galleries"] = [g for g in galleries if g.get("G_ID") != gallery_id]
+    ds.put(art)
+
+
